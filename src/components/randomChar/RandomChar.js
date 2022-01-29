@@ -6,13 +6,21 @@ import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
 class RandomChar extends React.Component {
-  lorem = 'Lorem ipsum dolor sit amet consectetur, adipisicing elit. ';
-  marvelService = new MarvelService();
-
   state = {
     char: {},
     loading: true,
     error: false,
+  };
+
+  marvelService = new MarvelService();
+
+  updateChar = () => {
+    const { charId } = this.props;
+    if (!charId) {
+      return;
+    }
+
+    this.marvelService.getCharacter(charId).then((character) => {});
   };
 
   componentDidMount() {
@@ -86,7 +94,6 @@ class RandomChar extends React.Component {
 
 const View = ({ char }) => {
   const { name, description, thumbnail, homepage, wiki } = char;
-  console.log(char);
 
   let curObjFit = 'none';
   if (thumbnail.includes('image_not_available')) {

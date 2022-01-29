@@ -1,47 +1,45 @@
 class MarvelService {
+  _apiBase = 'https://gateway.marvel.com:443/v1/public/';
+  // ЗДЕСЬ БУДЕТ ВАШ КЛЮЧ, ЭТОТ КЛЮЧ МОЖЕТ НЕ РАБОТАТЬ
+  _apiKey = 'apikey=c5d6fc8b83116d92ed468ce36bac6c62';
 
-    _apiBaseUrl = 'https://gateway.marvel.com:443/v1/public/';
-    _apikeyUrl = 'apikey=9fb61c57134ab55e68fd8802cb715a34'
-    
-    getResource = async (url) => {
-        let res  = await fetch(url); // фетчим данные
+  getResource = async (url) => {
+    let res = await fetch(url);
 
-        if(!res.ok){ //если все плохо то выводиим ошибку и ее статус
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-        }
-
-        return await res.json(); // по урлу получаем доступ к нашей апишке и возвращаем в формате джсон наш биг обджект
+    if (!res.ok) {
+      throw new Error(`Could not fetch ${url}, status: ${res.status}`);
     }
 
-        getAllCharacters = async () => {
-        const res = await this.getResource(`${this._apiBaseUrl}characters?limit=9&offset=210&${this._apikeyUrl}`);
-        return res.data.results.map(this._transformCharacter);
-    }
+    return await res.json();
+  };
 
-     getCharacter = async (id) => {
-        const res = await this.getResource(`${this._apiBaseUrl}characters/${id}?&${this._apikeyUrl}`); // получаем наш пигобджект по вот такой вот апишке
-        return this._transformCharacter(res.data.results[0]); // из нашего джсона, которы мы получили через урл подтягиваем нужные нам данные
-    }
+  getAllCharacters = async () => {
+    const res = await this.getResource(
+      `${this._apiBase}characters?limit=9&offset=210&${this._apiKey}`
+    );
+    return res.data.results.map(this._transformCharacter);
+  };
 
-    _transformCharacter(char) {
-        return {
-                name: char.name,
-                description: char.description,
-                thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,//превьюшка 
-                homepage: char.urls[0].url,
-                wiki: char.urls[1].url,
-        }
-    }
+  getCharacter = async (id) => {
+    const res = await this.getResource(
+      `${this._apiBase}characters/${id}?${this._apiKey}`
+    );
+    return this._transformCharacter(res.data.results[0]);
+  };
 
-    _transformAllCharacters(char) {
-        return {
-                name: char.name,
-                description: char.description,
-                thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,//превьюшка 
-                homepage: char.urls[0].url,
-                wiki: char.urls[1].url,
-        }
-    }
+  _transformCharacter = (char) => {
+    return {
+      id: char.id,
+      name: char.name,
+      description: char.description
+        ? `${char.description.slice(0, 210)}...`
+        : 'There is no description for this character',
+      thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,
+      homepage: char.urls[0].url,
+      wiki: char.urls[1].url,
+      comics: char.comics.items,
+    };
+  };
 }
 
 export default MarvelService;
