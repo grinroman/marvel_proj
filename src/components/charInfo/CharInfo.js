@@ -1,5 +1,5 @@
 import { Component } from 'react';
-
+import propTypes from 'prop-types';
 import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
@@ -39,7 +39,7 @@ class CharInfo extends Component {
       .then(this.onCharLoaded)
       .catch(this.onError);
 
-    this.foo.bar = 'kekes';
+    // this.foo.bar = 'kekes';//это я ломал компонент, чтобы посмотреть как работает ErrorBoundary
   };
 
   onCharLoaded = (char) => {
@@ -126,4 +126,5 @@ const View = ({ char }) => {
   );
 };
 
+CharInfo.propTypes = { charId: propTypes.number };
 export default CharInfo;
