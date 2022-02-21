@@ -1,70 +1,33 @@
-import { Component } from 'react';
-import propTypes from 'prop-types';
-import MarvelService from '../../services/MarvelService';
+import { useState, useEffect } from 'react';
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
 
 import './charInfo.scss';
 
-class CharInfo extends Component {
-  state = {
-    char: null,
-    loading: false,
-    error: false,
-  };
+const CharInfo = ({ charId }) => {
+  const [char, setChar] = useState(null);
 
-  marvelService = new MarvelService();
+  const { error, loading, getCharacter, clearError } = useMarvelService();
 
-  componentDidMount() {
-    this.updateChar();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.charId !== prevProps.charId) {
-      this.updateChar();
-    }
-  }
-
-  updateChar = () => {
-    const { charId } = this.props;
+  const updateChar = () => {
     if (!charId) {
       return;
     }
-
-    this.onCharLoading();
-
-    this.marvelService
-      .getCharacter(charId)
-      .then(this.onCharLoaded)
-      .catch(this.onError);
-
-    // this.foo.bar = 'kekes';//это я ломал компонент, чтобы посмотреть как работает ErrorBoundary
+    clearError();
+    getCharacter(charId).then(onCharLoaded);
   };
 
-  onCharLoaded = (char) => {
-    this.setState({
-      char,
-      loading: false,
-    });
+  useEffect(() => {
+    updateChar();
+  }, [charId]);
+
+  const onCharLoaded = (char) => {
+    setChar(char);
   };
 
-  onCharLoading = () => {
-    this.setState({
-      loading: true,
-    });
-  };
-
-  onError = () => {
-    this.setState({
-      loading: false,
-      error: true,
-    });
-  };
-
-  render() {
-    const { char, loading, error } = this.state;
-
+  {
     const skeleton = char || loading || error ? null : <Skeleton />;
     const errorMessage = error ? <ErrorMessage /> : null;
     const spinner = loading ? <Spinner /> : null;
@@ -79,7 +42,7 @@ class CharInfo extends Component {
       </div>
     );
   }
-}
+};
 
 const View = ({ char }) => {
   const { name, description, thumbnail, homepage, wiki, comics } = char;
@@ -126,5 +89,4 @@ const View = ({ char }) => {
   );
 };
 
-CharInfo.propTypes = { charId: propTypes.number };
 export default CharInfo;
